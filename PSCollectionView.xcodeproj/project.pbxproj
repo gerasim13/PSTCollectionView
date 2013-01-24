@@ -23,6 +23,19 @@
 		0041435016A7324800F3F8B5 /* PSTGridLayoutItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 004142F616A72C5300F3F8B5 /* PSTGridLayoutItem.m */; };
 		0041435116A7324800F3F8B5 /* PSTGridLayoutRow.m in Sources */ = {isa = PBXBuildFile; fileRef = 004142F816A72C5300F3F8B5 /* PSTGridLayoutRow.m */; };
 		0041435216A7324800F3F8B5 /* PSTGridLayoutSection.m in Sources */ = {isa = PBXBuildFile; fileRef = 004142FA16A72C5300F3F8B5 /* PSTGridLayoutSection.m */; };
+		00618B6F16B0B62E009EA00B /* PSTCollectionView.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142E216A72C5300F3F8B5 /* PSTCollectionView.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7016B0B641009EA00B /* PSTCollectionViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142E416A72C5300F3F8B5 /* PSTCollectionViewCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7116B0B641009EA00B /* PSTCollectionViewCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142E616A72C5300F3F8B5 /* PSTCollectionViewCommon.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7216B0B641009EA00B /* PSTCollectionViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142E716A72C5300F3F8B5 /* PSTCollectionViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7316B0B641009EA00B /* PSTCollectionViewData.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142E916A72C5300F3F8B5 /* PSTCollectionViewData.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7416B0B641009EA00B /* PSTCollectionViewFlowLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142EB16A72C5300F3F8B5 /* PSTCollectionViewFlowLayout.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7516B0B641009EA00B /* PSTCollectionViewItemKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142ED16A72C5300F3F8B5 /* PSTCollectionViewItemKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7616B0B641009EA00B /* PSTCollectionViewLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142EF16A72C5300F3F8B5 /* PSTCollectionViewLayout.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7716B0B641009EA00B /* PSTCollectionViewUpdateItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142F116A72C5300F3F8B5 /* PSTCollectionViewUpdateItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7816B0B641009EA00B /* PSTGridLayoutInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142F316A72C5300F3F8B5 /* PSTGridLayoutInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7916B0B641009EA00B /* PSTGridLayoutItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142F516A72C5300F3F8B5 /* PSTGridLayoutItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7A16B0B641009EA00B /* PSTGridLayoutRow.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142F716A72C5300F3F8B5 /* PSTGridLayoutRow.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		00618B7B16B0B641009EA00B /* PSTGridLayoutSection.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142F916A72C5300F3F8B5 /* PSTGridLayoutSection.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -149,6 +162,29 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		00618B6D16B0B627009EA00B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				00618B6F16B0B62E009EA00B /* PSTCollectionView.h in Headers */,
+				00618B7016B0B641009EA00B /* PSTCollectionViewCell.h in Headers */,
+				00618B7116B0B641009EA00B /* PSTCollectionViewCommon.h in Headers */,
+				00618B7216B0B641009EA00B /* PSTCollectionViewController.h in Headers */,
+				00618B7316B0B641009EA00B /* PSTCollectionViewData.h in Headers */,
+				00618B7416B0B641009EA00B /* PSTCollectionViewFlowLayout.h in Headers */,
+				00618B7516B0B641009EA00B /* PSTCollectionViewItemKey.h in Headers */,
+				00618B7616B0B641009EA00B /* PSTCollectionViewLayout.h in Headers */,
+				00618B7716B0B641009EA00B /* PSTCollectionViewUpdateItem.h in Headers */,
+				00618B7816B0B641009EA00B /* PSTGridLayoutInfo.h in Headers */,
+				00618B7916B0B641009EA00B /* PSTGridLayoutItem.h in Headers */,
+				00618B7A16B0B641009EA00B /* PSTGridLayoutRow.h in Headers */,
+				00618B7B16B0B641009EA00B /* PSTGridLayoutSection.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		004142CF16A72C0F00F3F8B5 /* PSCollectionView */ = {
 			isa = PBXNativeTarget;
@@ -157,6 +193,7 @@
 				004142CC16A72C0F00F3F8B5 /* Sources */,
 				004142CD16A72C0F00F3F8B5 /* Frameworks */,
 				004142CE16A72C0F00F3F8B5 /* CopyFiles */,
+				00618B6D16B0B627009EA00B /* Headers */,
 			);
 			buildRules = (
 			);
