@@ -397,51 +397,56 @@ static void PSTCollectionViewCommonSetup(PSTCollectionView *_self) {
 }
 
 - (id)dequeueReusableCellWithReuseIdentifier:(NSString *)identifier forIndexPath:(NSIndexPath *)indexPath {
-    // de-queue cell (if available)
-    NSMutableArray *reusableCells = _cellReuseQueues[identifier];
-    PSTCollectionViewCell *cell = [reusableCells lastObject];
-    PSTCollectionViewLayoutAttributes *attributes = [self.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath];
-
-    if (cell) {
-        [reusableCells removeObjectAtIndex:[reusableCells count]-1];
-    }else {
-        if (_cellNibDict[identifier]) {
-            // Cell was registered via registerNib:forCellWithReuseIdentifier:
-            UINib *cellNib = _cellNibDict[identifier];
-            NSDictionary *externalObjects = self.extVars.nibCellsExternalObjects[identifier];
-            if (externalObjects) {
-                cell = [cellNib instantiateWithOwner:self options:@{UINibExternalObjects:externalObjects}][0];
+    @autoreleasepool {
+        // de-queue cell (if available)
+        NSMutableArray *reusableCells = _cellReuseQueues[identifier];
+        __autoreleasing PSTCollectionViewCell *cell = [reusableCells lastObject];
+        __autoreleasing PSTCollectionViewLayoutAttributes *attributes = [self.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath];
+        
+        if (cell) {
+            [reusableCells removeObjectAtIndex:[reusableCells count]-1];
+        }else {
+            if (_cellNibDict[identifier]) {
+                // Cell was registered via registerNib:forCellWithReuseIdentifier:
+                __autoreleasing UINib *cellNib = _cellNibDict[identifier];
+                __autoreleasing NSDictionary *externalObjects = self.extVars.nibCellsExternalObjects[identifier];
+                __autoreleasing NSArray *nibContent;
+                if (externalObjects) {
+                    nibContent = [cellNib instantiateWithOwner:self options:@{UINibExternalObjects:externalObjects}];
+                } else {
+                    nibContent = [cellNib instantiateWithOwner:self options:nil];
+                }
+                if (nibContent) cell = nibContent[0];
+                nibContent = nil;
             } else {
-                cell = [cellNib instantiateWithOwner:self options:nil][0];
+                Class cellClass = _cellClassDict[identifier];
+                // compatibility layer
+                Class collectionViewCellClass = NSClassFromString(@"UICollectionViewCell");
+                if (collectionViewCellClass && [cellClass isEqual:collectionViewCellClass]) {
+                    cellClass = [PSTCollectionViewCell class];
+                }
+                if (cellClass == nil) {
+                    @throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"Class not registered for identifier %@", identifier] userInfo:nil];
+                }
+                if (attributes) {
+                    cell = [[cellClass alloc] initWithFrame:attributes.frame];
+                } else {
+                    cell = [cellClass new];
+                }
             }
-        } else {
-            Class cellClass = _cellClassDict[identifier];
-            // compatibility layer
-            Class collectionViewCellClass = NSClassFromString(@"UICollectionViewCell");
-            if (collectionViewCellClass && [cellClass isEqual:collectionViewCellClass]) {
-                cellClass = [PSTCollectionViewCell class];
+            PSTCollectionViewLayout *layout = [self collectionViewLayout];
+            if ([layout isKindOfClass:[PSTCollectionViewFlowLayout class]]) {
+                CGSize itemSize = ((PSTCollectionViewFlowLayout *)layout).itemSize;
+                cell.bounds = CGRectMake(0, 0, itemSize.width, itemSize.height);
             }
-            if (cellClass == nil) {
-                @throw [NSException exceptionWithName:NSInvalidArgumentException reason:[NSString stringWithFormat:@"Class not registered for identifier %@", identifier] userInfo:nil];
-            }
-            if (attributes) {
-                cell = [[cellClass alloc] initWithFrame:attributes.frame];
-            } else {
-                cell = [cellClass new];
-            }
+            cell.collectionView = self;
+            cell.reuseIdentifier = identifier;
         }
-        PSTCollectionViewLayout *layout = [self collectionViewLayout];
-        if ([layout isKindOfClass:[PSTCollectionViewFlowLayout class]]) {
-            CGSize itemSize = ((PSTCollectionViewFlowLayout *)layout).itemSize;
-            cell.bounds = CGRectMake(0, 0, itemSize.width, itemSize.height);
-        }
-        cell.collectionView = self;
-        cell.reuseIdentifier = identifier;
+        
+        [cell applyLayoutAttributes:attributes];
+        
+        return cell;
     }
-
-    [cell applyLayoutAttributes:attributes];
-
-    return cell;
 }
 
 - (id)dequeueReusableSupplementaryViewOfKind:(NSString *)elementKind withReuseIdentifier:(NSString *)identifier forIndexPath:(NSIndexPath *)indexPath {
@@ -1350,74 +1355,80 @@ static void PSTCollectionViewCommonSetup(PSTCollectionView *_self) {
 // update currently visible cells, fetches new cells if needed
 // TODO: use now parameter.
 - (void)updateVisibleCellsNow:(BOOL)now {
-    NSArray *layoutAttributesArray = [_collectionViewData layoutAttributesForElementsInRect:self.bounds];
-
-    if (layoutAttributesArray == nil || [layoutAttributesArray count] == 0) {
-        // If our layout source isn't providing any layout information, we should just
-        // stop, otherwise we'll blow away all the currently existing cells.
-        return;
-    }
-
-	// create ItemKey/Attributes dictionary
-    NSMutableDictionary *itemKeysToAddDict = [NSMutableDictionary dictionary];
-
-	// Add new cells.
-    for (PSTCollectionViewLayoutAttributes *layoutAttributes in layoutAttributesArray) {
-        PSTCollectionViewItemKey *itemKey = [PSTCollectionViewItemKey collectionItemKeyForLayoutAttributes:layoutAttributes];
-        itemKeysToAddDict[itemKey] = layoutAttributes;
-
-        // check if cell is in visible dict; add it if not.
-        PSTCollectionReusableView *view = _allVisibleViewsDict[itemKey];
-        if (!view) {
-            if (itemKey.type == PSTCollectionViewItemTypeCell) {
-                view = [self createPreparedCellForItemAtIndexPath:itemKey.indexPath withLayoutAttributes:layoutAttributes];
-
-            } else if (itemKey.type == PSTCollectionViewItemTypeSupplementaryView) {
-                view = [self createPreparedSupplementaryViewForElementOfKind:layoutAttributes.representedElementKind
-																 atIndexPath:layoutAttributes.indexPath
-														withLayoutAttributes:layoutAttributes];
-			} else if (itemKey.type == PSTCollectionViewItemTypeDecorationView) {
-				view = [self dequeueReusableOrCreateDecorationViewOfKind:layoutAttributes.reuseIdentifier forIndexPath:layoutAttributes.indexPath];
-			}
-
-			// Supplementary views are optional
-			if (view) {
-				_allVisibleViewsDict[itemKey] = view;
-				[self addControlledSubview:view];
-
-                // Always apply attributes. Fixes #203.
-                [view applyLayoutAttributes:layoutAttributes];
-			}
-        }else {
-            // just update cell
-            [view applyLayoutAttributes:layoutAttributes];
+    @autoreleasepool {
+        NSArray *layoutAttributesArray = [_collectionViewData layoutAttributesForElementsInRect:self.bounds];
+        
+        if (layoutAttributesArray == nil || [layoutAttributesArray count] == 0) {
+            // If our layout source isn't providing any layout information, we should just
+            // stop, otherwise we'll blow away all the currently existing cells.
+            return;
         }
-    }
-
-	// Detect what items should be removed and queued back.
-    NSMutableSet *allVisibleItemKeys = [NSMutableSet setWithArray:[_allVisibleViewsDict allKeys]];
-    [allVisibleItemKeys minusSet:[NSSet setWithArray:[itemKeysToAddDict allKeys]]];
-
-    // Finally remove views that have not been processed and prepare them for re-use.
-    for (PSTCollectionViewItemKey *itemKey in allVisibleItemKeys) {
-        PSTCollectionReusableView *reusableView = _allVisibleViewsDict[itemKey];
-        if (reusableView) {
-            [reusableView removeFromSuperview];
-            [_allVisibleViewsDict removeObjectForKey:itemKey];
-            if (itemKey.type == PSTCollectionViewItemTypeCell) {
-                if (_collectionViewFlags.delegateDidEndDisplayingCell) {
-                    [self.delegate collectionView:self didEndDisplayingCell:(PSTCollectionViewCell *)reusableView forItemAtIndexPath:itemKey.indexPath];
+        
+        // create ItemKey/Attributes dictionary
+        NSMutableDictionary *itemKeysToAddDict = [NSMutableDictionary dictionary];
+        
+        // Add new cells.
+        for (PSTCollectionViewLayoutAttributes *layoutAttributes in layoutAttributesArray) {
+            @autoreleasepool {
+                PSTCollectionViewItemKey *itemKey = [PSTCollectionViewItemKey collectionItemKeyForLayoutAttributes:layoutAttributes];
+                itemKeysToAddDict[itemKey] = layoutAttributes;
+                
+                // check if cell is in visible dict; add it if not.
+                PSTCollectionReusableView *view = _allVisibleViewsDict[itemKey];
+                if (!view) {
+                    if (itemKey.type == PSTCollectionViewItemTypeCell) {
+                        view = [self createPreparedCellForItemAtIndexPath:itemKey.indexPath withLayoutAttributes:layoutAttributes];
+                        
+                    } else if (itemKey.type == PSTCollectionViewItemTypeSupplementaryView) {
+                        view = [self createPreparedSupplementaryViewForElementOfKind:layoutAttributes.representedElementKind
+                                                                         atIndexPath:layoutAttributes.indexPath
+                                                                withLayoutAttributes:layoutAttributes];
+                    } else if (itemKey.type == PSTCollectionViewItemTypeDecorationView) {
+                        view = [self dequeueReusableOrCreateDecorationViewOfKind:layoutAttributes.reuseIdentifier forIndexPath:layoutAttributes.indexPath];
+                    }
+                    
+                    // Supplementary views are optional
+                    if (view) {
+                        _allVisibleViewsDict[itemKey] = view;
+                        [self addControlledSubview:view];
+                        
+                        // Always apply attributes. Fixes #203.
+                        [view applyLayoutAttributes:layoutAttributes];
+                    }
+                }else {
+                    // just update cell
+                    [view applyLayoutAttributes:layoutAttributes];
                 }
-                [self reuseCell:(PSTCollectionViewCell *)reusableView];
             }
-            else if(itemKey.type == PSTCollectionViewItemTypeSupplementaryView) {
-                if (_collectionViewFlags.delegateDidEndDisplayingSupplementaryView) {
-                    [self.delegate collectionView:self didEndDisplayingSupplementaryView:reusableView forElementOfKind:itemKey.identifier atIndexPath:itemKey.indexPath];
+        }
+        
+        // Detect what items should be removed and queued back.
+        NSMutableSet *allVisibleItemKeys = [NSMutableSet setWithArray:[_allVisibleViewsDict allKeys]];
+        [allVisibleItemKeys minusSet:[NSSet setWithArray:[itemKeysToAddDict allKeys]]];
+        
+        // Finally remove views that have not been processed and prepare them for re-use.
+        for (PSTCollectionViewItemKey *itemKey in allVisibleItemKeys) {
+            @autoreleasepool {
+                PSTCollectionReusableView *reusableView = _allVisibleViewsDict[itemKey];
+                if (reusableView) {
+                    [reusableView removeFromSuperview];
+                    [_allVisibleViewsDict removeObjectForKey:itemKey];
+                    if (itemKey.type == PSTCollectionViewItemTypeCell) {
+                        if (_collectionViewFlags.delegateDidEndDisplayingCell) {
+                            [self.delegate collectionView:self didEndDisplayingCell:(PSTCollectionViewCell *)reusableView forItemAtIndexPath:itemKey.indexPath];
+                        }
+                        [self reuseCell:(PSTCollectionViewCell *)reusableView];
+                    }
+                    else if(itemKey.type == PSTCollectionViewItemTypeSupplementaryView) {
+                        if (_collectionViewFlags.delegateDidEndDisplayingSupplementaryView) {
+                            [self.delegate collectionView:self didEndDisplayingSupplementaryView:reusableView forElementOfKind:itemKey.identifier atIndexPath:itemKey.indexPath];
+                        }
+                        [self reuseSupplementaryView:reusableView];
+                    }
+                    else if(itemKey.type == PSTCollectionViewItemTypeDecorationView) {
+                        [self reuseDecorationView:reusableView];
+                    }
                 }
-                [self reuseSupplementaryView:reusableView];
-            }
-            else if(itemKey.type == PSTCollectionViewItemTypeDecorationView) {
-                [self reuseDecorationView:reusableView];
             }
         }
     }
@@ -1426,7 +1437,7 @@ static void PSTCollectionViewCommonSetup(PSTCollectionView *_self) {
 // fetches a cell from the dataSource and sets the layoutAttributes
 - (PSTCollectionViewCell *)createPreparedCellForItemAtIndexPath:(NSIndexPath *)indexPath withLayoutAttributes:(PSTCollectionViewLayoutAttributes *)layoutAttributes {
 
-    PSTCollectionViewCell *cell = [self.dataSource collectionView:self cellForItemAtIndexPath:indexPath];
+    __autoreleasing PSTCollectionViewCell *cell = [self.dataSource collectionView:self cellForItemAtIndexPath:indexPath];
 
     // Apply attributes
     [cell applyLayoutAttributes: layoutAttributes];

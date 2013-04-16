@@ -47,25 +47,31 @@
 #pragma mark - Static
 
 + (instancetype)layoutAttributesForCellWithIndexPath:(NSIndexPath *)indexPath {
-    PSTCollectionViewLayoutAttributes *attributes = [self new];
-    attributes.elementKind = PSTCollectionElementKindCell;
-    attributes.indexPath = indexPath;
-    return attributes;
+    @autoreleasepool {
+        PSTCollectionViewLayoutAttributes *attributes = [self new];
+        attributes.elementKind = PSTCollectionElementKindCell;
+        attributes.indexPath = indexPath;
+        return attributes;
+    }
 }
 
 + (instancetype)layoutAttributesForSupplementaryViewOfKind:(NSString *)elementKind withIndexPath:(NSIndexPath *)indexPath {
-    PSTCollectionViewLayoutAttributes *attributes = [self new];
-    attributes.elementKind = elementKind;
-    attributes.indexPath = indexPath;
-    return attributes;
+    @autoreleasepool {
+        PSTCollectionViewLayoutAttributes *attributes = [self new];
+        attributes.elementKind = elementKind;
+        attributes.indexPath = indexPath;
+        return attributes;
+    }
 }
 
 + (instancetype)layoutAttributesForDecorationViewOfKind:(NSString *)kind withIndexPath:(NSIndexPath *)indexPath {
-    PSTCollectionViewLayoutAttributes *attributes = [self new];
-    attributes.elementKind = PSTCollectionElementKindDecorationView;
-    attributes.reuseIdentifier = kind;
-    attributes.indexPath = indexPath;
-    return attributes;
+    @autoreleasepool {
+        PSTCollectionViewLayoutAttributes *attributes = [self new];
+        attributes.elementKind = PSTCollectionElementKindDecorationView;
+        attributes.reuseIdentifier = kind;
+        attributes.indexPath = indexPath;
+        return attributes;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

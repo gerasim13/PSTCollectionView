@@ -323,66 +323,68 @@ static char kPSTCachedItemRectsKey;
 
     NSUInteger numberOfSections = [self.collectionView numberOfSections];
     for (NSUInteger section = 0; section < numberOfSections; section++) {
-        PSTGridLayoutSection *layoutSection = [_data addSection];
-        layoutSection.verticalInterstice = _data.horizontal ? self.minimumInteritemSpacing : self.minimumLineSpacing;
-        layoutSection.horizontalInterstice = !_data.horizontal ? self.minimumInteritemSpacing : self.minimumLineSpacing;
-
-        if ([flowDataSource respondsToSelector:@selector(collectionView:layout:insetForSectionAtIndex:)]) {
-            layoutSection.sectionMargins = [flowDataSource collectionView:self.collectionView layout:self insetForSectionAtIndex:section];
-        } else {
-            layoutSection.sectionMargins = self.sectionInset;
-        }
-
-        if ([flowDataSource respondsToSelector:@selector(collectionView:layout:minimumLineSpacingForSectionAtIndex:)]) {
-            CGFloat minimumLineSpacing = [flowDataSource collectionView:self.collectionView layout:self minimumLineSpacingForSectionAtIndex:section];
-            if (_data.horizontal) {
-                layoutSection.horizontalInterstice = minimumLineSpacing;
+        @autoreleasepool {
+            PSTGridLayoutSection *layoutSection = [_data addSection];
+            layoutSection.verticalInterstice = _data.horizontal ? self.minimumInteritemSpacing : self.minimumLineSpacing;
+            layoutSection.horizontalInterstice = !_data.horizontal ? self.minimumInteritemSpacing : self.minimumLineSpacing;
+            
+            if ([flowDataSource respondsToSelector:@selector(collectionView:layout:insetForSectionAtIndex:)]) {
+                layoutSection.sectionMargins = [flowDataSource collectionView:self.collectionView layout:self insetForSectionAtIndex:section];
+            } else {
+                layoutSection.sectionMargins = self.sectionInset;
+            }
+            
+            if ([flowDataSource respondsToSelector:@selector(collectionView:layout:minimumLineSpacingForSectionAtIndex:)]) {
+                CGFloat minimumLineSpacing = [flowDataSource collectionView:self.collectionView layout:self minimumLineSpacingForSectionAtIndex:section];
+                if (_data.horizontal) {
+                    layoutSection.horizontalInterstice = minimumLineSpacing;
+                }else {
+                    layoutSection.verticalInterstice = minimumLineSpacing;
+                }
+            }
+            
+            if ([flowDataSource respondsToSelector:@selector(collectionView:layout:minimumInteritemSpacingForSectionAtIndex:)]) {
+                CGFloat minimumInterimSpacing = [flowDataSource collectionView:self.collectionView layout:self minimumInteritemSpacingForSectionAtIndex:section];
+                if (_data.horizontal) {
+                    layoutSection.verticalInterstice = minimumInterimSpacing;
+                }else {
+                    layoutSection.horizontalInterstice = minimumInterimSpacing;
+                }
+            }
+            
+            CGSize headerReferenceSize;
+            if (implementsHeaderReferenceDelegate) {
+                headerReferenceSize = [flowDataSource collectionView:self.collectionView layout:self referenceSizeForHeaderInSection:section];
+            } else {
+                headerReferenceSize = self.headerReferenceSize;
+            }
+            layoutSection.headerDimension = _data.horizontal ? headerReferenceSize.width : headerReferenceSize.height;
+            
+            CGSize footerReferenceSize;
+            if (implementsFooterReferenceDelegate) {
+                footerReferenceSize = [flowDataSource collectionView:self.collectionView layout:self referenceSizeForFooterInSection:section];
+            } else {
+                footerReferenceSize = self.footerReferenceSize;
+            }
+            layoutSection.footerDimension = _data.horizontal ? footerReferenceSize.width : footerReferenceSize.height;
+            
+            NSUInteger numberOfItems = [self.collectionView numberOfItemsInSection:section];
+            
+            // if delegate implements size delegate, query it for all items
+            if (implementsSizeDelegate) {
+                for (NSUInteger item = 0; item < numberOfItems; item++) {
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:item inSection:section];
+                    CGSize itemSize = implementsSizeDelegate ? [flowDataSource collectionView:self.collectionView layout:self sizeForItemAtIndexPath:indexPath] : self.itemSize;
+                    
+                    PSTGridLayoutItem *layoutItem = [layoutSection addItem];
+                    layoutItem.itemFrame = (CGRect){.size=itemSize};
+                }
+                // if not, go the fast path
             }else {
-                layoutSection.verticalInterstice = minimumLineSpacing;
+                layoutSection.fixedItemSize = YES;
+                layoutSection.itemSize = self.itemSize;
+                layoutSection.itemsCount = numberOfItems;
             }
-        }
-
-        if ([flowDataSource respondsToSelector:@selector(collectionView:layout:minimumInteritemSpacingForSectionAtIndex:)]) {
-            CGFloat minimumInterimSpacing = [flowDataSource collectionView:self.collectionView layout:self minimumInteritemSpacingForSectionAtIndex:section];
-            if (_data.horizontal) {
-                layoutSection.verticalInterstice = minimumInterimSpacing;
-            }else {
-                layoutSection.horizontalInterstice = minimumInterimSpacing;
-            }
-        }
-
-		CGSize headerReferenceSize;
-		if (implementsHeaderReferenceDelegate) {
-			headerReferenceSize = [flowDataSource collectionView:self.collectionView layout:self referenceSizeForHeaderInSection:section];
-		} else {
-			headerReferenceSize = self.headerReferenceSize;
-		}
-		layoutSection.headerDimension = _data.horizontal ? headerReferenceSize.width : headerReferenceSize.height;
-
-		CGSize footerReferenceSize;
-		if (implementsFooterReferenceDelegate) {
-			footerReferenceSize = [flowDataSource collectionView:self.collectionView layout:self referenceSizeForFooterInSection:section];
-		} else {
-			footerReferenceSize = self.footerReferenceSize;
-		}
-		layoutSection.footerDimension = _data.horizontal ? footerReferenceSize.width : footerReferenceSize.height;
-
-        NSUInteger numberOfItems = [self.collectionView numberOfItemsInSection:section];
-
-        // if delegate implements size delegate, query it for all items
-        if (implementsSizeDelegate) {
-            for (NSUInteger item = 0; item < numberOfItems; item++) {
-                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:item inSection:section];
-                CGSize itemSize = implementsSizeDelegate ? [flowDataSource collectionView:self.collectionView layout:self sizeForItemAtIndexPath:indexPath] : self.itemSize;
-
-                PSTGridLayoutItem *layoutItem = [layoutSection addItem];
-                layoutItem.itemFrame = (CGRect){.size=itemSize};
-            }
-            // if not, go the fast path
-        }else {
-            layoutSection.fixedItemSize = YES;
-            layoutSection.itemSize = self.itemSize;
-            layoutSection.itemsCount = numberOfItems;
         }
     }
 }
