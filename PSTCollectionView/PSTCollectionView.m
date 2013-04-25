@@ -380,7 +380,7 @@ static void PSTCollectionViewCommonSetup(PSTCollectionView *_self) {
 }
 
 - (void)registerNib:(UINib *)nib forCellWithReuseIdentifier:(NSString *)identifier {
-    NSArray *topLevelObjects = [nib instantiateWithOwner:nil options:nil];
+    __autoreleasing NSArray *topLevelObjects = [nib instantiateWithOwner:nil options:nil];
 #pragma unused(topLevelObjects)
     NSAssert(topLevelObjects.count == 1 && [topLevelObjects[0] isKindOfClass:PSTCollectionViewCell.class], @"must contain exactly 1 top level object which is a PSTCollectionViewCell");
 
