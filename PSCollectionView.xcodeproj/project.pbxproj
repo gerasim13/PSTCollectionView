@@ -210,7 +210,7 @@
 		77DEF7A0157ED8390057C06D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Apple Inc.";
 			};
 			buildConfigurationList = 77DEF7A3157ED8390057C06D /* Build configuration list for PBXProject "PSCollectionView" */;
@@ -307,6 +307,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
 			};
