@@ -36,6 +36,8 @@
 		00618B7916B0B641009EA00B /* PSTGridLayoutItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142F516A72C5300F3F8B5 /* PSTGridLayoutItem.h */; settings = {ATTRIBUTES = (); }; };
 		00618B7A16B0B641009EA00B /* PSTGridLayoutRow.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142F716A72C5300F3F8B5 /* PSTGridLayoutRow.h */; settings = {ATTRIBUTES = (); }; };
 		00618B7B16B0B641009EA00B /* PSTGridLayoutSection.h in Headers */ = {isa = PBXBuildFile; fileRef = 004142F916A72C5300F3F8B5 /* PSTGridLayoutSection.h */; settings = {ATTRIBUTES = (); }; };
+		006E900C17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 006E900A17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.h */; };
+		006E900D17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 006E900B17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -82,6 +84,8 @@
 		0041430716A72CE000F3F8B5 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		0041430D16A72D2100F3F8B5 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		0041430F16A72D2700F3F8B5 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		006E900A17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSIndexPath+PSTCollectionViewAdditions.h"; path = "PSTCollectionView/NSIndexPath+PSTCollectionViewAdditions.h"; sourceTree = SOURCE_ROOT; };
+		006E900B17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSIndexPath+PSTCollectionViewAdditions.m"; path = "PSTCollectionView/NSIndexPath+PSTCollectionViewAdditions.m"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +117,8 @@
 		004142D416A72C0F00F3F8B5 /* PSCollectionView */ = {
 			isa = PBXGroup;
 			children = (
+				006E900A17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.h */,
+				006E900B17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.m */,
 				004142E216A72C5300F3F8B5 /* PSTCollectionView.h */,
 				004142E316A72C5300F3F8B5 /* PSTCollectionView.m */,
 				004142E416A72C5300F3F8B5 /* PSTCollectionViewCell.h */,
@@ -169,6 +175,7 @@
 			files = (
 				00618B6F16B0B62E009EA00B /* PSTCollectionView.h in Headers */,
 				00618B7016B0B641009EA00B /* PSTCollectionViewCell.h in Headers */,
+				006E900C17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.h in Headers */,
 				00618B7116B0B641009EA00B /* PSTCollectionViewCommon.h in Headers */,
 				00618B7216B0B641009EA00B /* PSTCollectionViewController.h in Headers */,
 				00618B7316B0B641009EA00B /* PSTCollectionViewData.h in Headers */,
@@ -239,6 +246,7 @@
 				0041434816A7324800F3F8B5 /* PSTCollectionViewCell.m in Sources */,
 				0041434916A7324800F3F8B5 /* PSTCollectionViewController.m in Sources */,
 				0041434A16A7324800F3F8B5 /* PSTCollectionViewData.m in Sources */,
+				006E900D17D2219D0044490E /* NSIndexPath+PSTCollectionViewAdditions.m in Sources */,
 				0041434B16A7324800F3F8B5 /* PSTCollectionViewFlowLayout.m in Sources */,
 				0041434C16A7324800F3F8B5 /* PSTCollectionViewItemKey.m in Sources */,
 				0041434D16A7324800F3F8B5 /* PSTCollectionViewLayout.m in Sources */,
@@ -308,6 +316,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
 			};
@@ -328,6 +337,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
 				VALIDATE_PRODUCT = YES;
